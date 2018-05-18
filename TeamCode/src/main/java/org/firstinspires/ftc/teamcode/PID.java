@@ -12,11 +12,17 @@ public class PID {
     double kI;
     double kD;
 
-    private double lastError;
+    private double lastPosition;
 
     private double acc;
 
     private ArrayList<Double> buffer;
+    public PID(PIDConstants x){
+        kP=x.kP;
+        kI=x.kI;
+        kD=x.kD;
+        reset();
+    }
 
 
     public PID(double p, double I, double D) {
@@ -42,12 +48,25 @@ public class PID {
 
     public void reset() {
         acc = 0;
-        lastError = 0;
+        lastPosition = 0;
         for(short i = 0; i<BUFFER_SIZE; i++) buffer.add(0.0);
     }
 
 
+    public double calcNoI(double pos, double setPoint){
+        double error = setPoint - pos;
+        double p = kP * error;
 
+
+
+        double d = (pos - lastPosition);
+        d *= kD;
+
+        lastPosition = pos;
+
+        return p + d;
+
+    }
     public double calc(double pos, double setPoint) {
 
         double error = setPoint - pos;
@@ -56,10 +75,10 @@ public class PID {
 
         acc=accumulatorBuffer(error);
         double i = kI * acc;
-        double d = (error - lastError);
+        double d = (pos - lastPosition);
         d *= kD;
 
-        lastError = error;
+        lastPosition = pos;
 
         return p + i + d;
 
