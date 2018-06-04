@@ -37,7 +37,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.vuforia.Vec3F;
+import com.vuforia.Vec3I;
 
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -57,7 +60,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
  */
 
 @TeleOp(name="GyroTest", group="test")
-//@Disabled
+@Disabled
 public class GyroTest extends LinearOpMode {
 
     // Declare OpMode members.
@@ -67,6 +70,7 @@ public class GyroTest extends LinearOpMode {
     DcMotor lr;
     BNO055IMU imu;
     PID pid = new PID(0.025);
+
 
     @Override
     public void runOpMode() {
@@ -92,6 +96,7 @@ public class GyroTest extends LinearOpMode {
         while (opModeIsActive()) {
 
             drive(0,0,pid.calc(imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle,90));
+
 
         }
     }

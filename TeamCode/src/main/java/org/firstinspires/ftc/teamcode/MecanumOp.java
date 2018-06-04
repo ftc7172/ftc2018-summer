@@ -67,6 +67,7 @@ public class MecanumOp extends OpMode
     DcMotor lr;
     BNO055IMU imu;
     PID pid;
+    Gyro gyro;
 
     double target;
     /*
@@ -75,11 +76,7 @@ public class MecanumOp extends OpMode
     @Override
     public void init() {
         imu=hardwareMap.get(BNO055IMU.class, "imu");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-
-        imu.initialize(parameters);
+        gyro= new Gyro(imu);
 
 
 
@@ -105,7 +102,7 @@ public class MecanumOp extends OpMode
      */
     @Override
     public void start() {
-
+    gyro.reset();
 
     }
 
@@ -114,16 +111,20 @@ public class MecanumOp extends OpMode
      */
     @Override
     public void loop() {
+        double heading=gyro.heading();
         double forward= -gamepad1.left_stick_y;
         double turn = 0;
 
         target+=gamepad1.left_stick_x*-5;
-        turn= pid.calc(imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle, target);
+        turn= pid.calc(heading, target);
 
-        telemetry.addData("gyro", imu.getAngularOrientation(AxesReference.INTRINSIC,AxesOrder.ZYX,AngleUnit.DEGREES).firstAngle);
+        telemetry.addData("gyro", heading);
 
         double strafe= gamepad1.right_stick_x;
-        drive(forward,strafe,turn);
+
+        Vector2 vec = new Vector2(strafe, forward,true);
+        vec.rotateVector(heading);
+        drive(vec.getY(),vec.getX(),turn);
 
     }
     public void drive(double forward, double strafe, double turn){
