@@ -81,14 +81,15 @@ public class MecanumOp extends OpMode
 
         imu.initialize(parameters);
 
-        pid= new PID(1,0,0);
 
-        rf=hardwareMap.dcMotor.get("rf");
-        rr=hardwareMap.dcMotor.get("rr");
-        lf=hardwareMap.dcMotor.get("lf");
+
+        rf= hardwareMap.get(DcMotor.class,"rf");
+        rr= hardwareMap.get(DcMotor.class,"rr");
+        lf= hardwareMap.get(DcMotor.class,"lf");
         lf.setDirection(DcMotorSimple.Direction.REVERSE);
-        lr=hardwareMap.dcMotor.get("lr");
+        lr= hardwareMap.get(DcMotor.class,"lr");
         lr.setDirection(DcMotorSimple.Direction.REVERSE);
+        pid= new PID(0.025);
 
          }
 
@@ -114,11 +115,13 @@ public class MecanumOp extends OpMode
     @Override
     public void loop() {
         double forward= -gamepad1.left_stick_y;
-        double turn = gamepad1.left_stick_x;
-        /*
-        target+=gamepad1.left_stick_x;
+        double turn = 0;
+
+        target+=gamepad1.left_stick_x*-5;
         turn= pid.calc(imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle, target);
-         */
+
+        telemetry.addData("gyro", imu.getAngularOrientation(AxesReference.INTRINSIC,AxesOrder.ZYX,AngleUnit.DEGREES).firstAngle);
+
         double strafe= gamepad1.right_stick_x;
         drive(forward,strafe,turn);
 

@@ -7,7 +7,7 @@ import java.util.ArrayList;
  */
 
 public class PID {
-    final short BUFFER_SIZE=5;
+    //final short BUFFER_SIZE=5;
     double kP;
     double kI;
     double kD;
@@ -16,7 +16,7 @@ public class PID {
 
     private double acc;
 
-    private ArrayList<Double> buffer;
+   // private ArrayList<Double> buffer;
     public PID(PIDConstants x){
         kP=x.kP;
         kI=x.kI;
@@ -49,7 +49,8 @@ public class PID {
     public void reset() {
         acc = 0;
         lastPosition = 0;
-        for(short i = 0; i<BUFFER_SIZE; i++) buffer.add(0.0);
+       // buffer= new ArrayList<Double>();
+        //for(short i = 0; i<BUFFER_SIZE; i++) buffer.add(0.0);
     }
 
 
@@ -84,13 +85,16 @@ public class PID {
 
     }
     private double accumulatorBuffer(double x){
-        buffer.remove(0);
+       /* buffer.remove(0);
         buffer.add(x);
         double sum=0;
         for(double i: buffer){
             sum+=i;
         }
-        return sum;
+        return sum;*/
+
+       double sum = acc+x;
+       return sum*2/3.0;
     }
 
 

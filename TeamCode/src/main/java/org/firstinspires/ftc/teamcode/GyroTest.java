@@ -66,7 +66,7 @@ public class GyroTest extends LinearOpMode {
     DcMotor lf;
     DcMotor lr;
     BNO055IMU imu;
-    PID pid;
+    PID pid = new PID(0.025);
 
     @Override
     public void runOpMode() {
@@ -76,13 +76,12 @@ public class GyroTest extends LinearOpMode {
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
 
         imu.initialize(parameters);
-        rf=hardwareMap.dcMotor.get("rf");
-        rr=hardwareMap.dcMotor.get("rr");
-        lf=hardwareMap.dcMotor.get("lf");
-        lf.setDirection(DcMotorSimple.Direction.REVERSE);
-        lr=hardwareMap.dcMotor.get("lr");
-        lr.setDirection(DcMotorSimple.Direction.REVERSE);
-        pid= new PID(1,0,0);
+        rf= hardwareMap.get(DcMotor.class,"rf");
+        rr= hardwareMap.get(DcMotor.class,"rr");
+        lf= hardwareMap.get(DcMotor.class,"lf");
+        lf.setDirection(DcMotor.Direction.REVERSE);
+        lr= hardwareMap.get(DcMotor.class,"lr");
+        lr.setDirection(DcMotor.Direction.REVERSE);
 
 
         // Wait for the game to start (driver presses PLAY)
@@ -92,7 +91,7 @@ public class GyroTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            drive(0,0,pid.calc(imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle,0));
+            drive(0,0,pid.calc(imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle,90));
 
         }
     }
