@@ -87,6 +87,10 @@ public class MecanumOp extends OpMode
         lr= hardwareMap.get(DcMotor.class,"lr");
         lr.setDirection(DcMotorSimple.Direction.REVERSE);
         pid= new PID(0.025);
+        rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
          }
 
@@ -112,11 +116,11 @@ public class MecanumOp extends OpMode
     @Override
     public void loop() {
         double heading=gyro.heading();
-        double forward= -gamepad1.left_stick_y;
-        double turn = 0;
+        double forward=gamepad1.left_stick_y;
+        double turn = gamepad1.left_stick_x;
 
-        target+=gamepad1.left_stick_x*-5;
-        turn= pid.calc(heading, target);
+       // target+=gamepad1.left_stick_x*-5;
+        //turn= pid.calc(heading, target);
 
         telemetry.addData("gyro", heading);
 

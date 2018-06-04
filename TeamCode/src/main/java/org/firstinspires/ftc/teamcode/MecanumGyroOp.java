@@ -30,71 +30,95 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-import com.vuforia.Vec3F;
-import com.vuforia.Vec3I;
-
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-
 
 /**
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
+ * This file contains an example of an iterative (Non-Linear) "OpMode".
+ * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
+ * The names of OpModes appear on the menu of the FTC Driver Station.
+ * When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
  *
  * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
+ * It includes all the skeletal structure that all iterative OpModes contain.
  *
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="GyroTest", group="test")
+@TeleOp(name="GyroMecanum", group="teleop")
 //@Disabled
-public class GyroTest extends LinearOpMode {
-
-    // Declare OpMode members.
+public class MecanumGyroOp extends OpMode
+{
     DcMotor rf;
     DcMotor rr;
     DcMotor lf;
     DcMotor lr;
     BNO055IMU imu;
-    PID pid = new PID(-0.015);
+    PID pid;
     Gyro gyro;
 
+    double target;
+    /*
+     * Code to run ONCE when the driver hits INIT
+     */
     @Override
-    public void runOpMode() {
+    public void init() {
         imu=hardwareMap.get(BNO055IMU.class, "imu");
-       gyro= new Gyro(imu);
+        gyro= new Gyro(imu);
+
+
 
         rf= hardwareMap.get(DcMotor.class,"rf");
         rr= hardwareMap.get(DcMotor.class,"rr");
         lf= hardwareMap.get(DcMotor.class,"lf");
-        lf.setDirection(DcMotor.Direction.REVERSE);
+        lf.setDirection(DcMotorSimple.Direction.REVERSE);
         lr= hardwareMap.get(DcMotor.class,"lr");
-        lr.setDirection(DcMotor.Direction.REVERSE);
+        lr.setDirection(DcMotorSimple.Direction.REVERSE);
+        pid= new PID(-0.015);
+
+         }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+     */
+    @Override
+    public void init_loop() {
+    }
+
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
+    @Override
+    public void start() {
+    gyro.reset();
+
+    }
+
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        double heading=gyro.heading();
+        double forward=gamepad1.right_stick_y;
+        double turn ;//= gamepad1.left_stick_x;
+        preset();
+        target+=gamepad1.left_stick_x*-8;
+        turn= pid.calc(heading, target);
+
+        telemetry.addData("gyro", heading);
+
+        double strafe= gamepad1.right_stick_x;
 
 
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
+        Vector2 vec = new Vector2(strafe, forward);
+        vec.rotateVector(heading);
+        drive(vec.getY()+gamepad1.left_stick_y,vec.getX(),turn);
 
-
-        // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-
-            drive(0,0,pid.calc(gyro.heading(),90));
-
-        }
     }
     public void drive(double forward, double strafe, double turn){
         double rfP= forward+turn+strafe;
@@ -107,4 +131,21 @@ public class GyroTest extends LinearOpMode {
         lr.setPower(lrP);
 
     }
+    public void preset(){
+        if(gamepad1.dpad_up){
+            target=360*gyro.turns;
+        }
+        else if (gamepad1.dpad_right)target=-90+360*gyro.turns;
+        else if(gamepad1.dpad_left)target=90+360*gyro.turns;
+        else if(gamepad1.dpad_down)target=180+360*gyro.turns;
+        else if(gamepad1.a) {gyro.reset(); target=0;}
+    }
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+    @Override
+    public void stop() {
+    }
+
 }
