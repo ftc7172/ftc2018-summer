@@ -122,8 +122,8 @@ public class MecanumOp extends OpMode
 
         double strafe= gamepad1.right_stick_x;
 
-        Vector2 vec = new Vector2(strafe, forward,true);
-        vec.rotateVector(heading);
+        Vector2 vec = new Vector2(strafe, forward);
+        //vec.rotateVector(heading);
         drive(vec.getY(),vec.getX(),turn);
 
     }
