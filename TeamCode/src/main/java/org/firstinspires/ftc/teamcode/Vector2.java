@@ -38,8 +38,8 @@ public class Vector2 {
     public Vector2(double x, double y) {
 
 
-            this.x = x;
-            this.y = y;
+        this.x = x;
+        this.y = y;
 
     }
 
@@ -50,9 +50,13 @@ public class Vector2 {
     }
 
     public void rotateVector(double phi) {
-        phi=Math.toRadians(phi);
-        x= x*Math.cos(phi)- y*Math.sin(phi);
-        y=x*Math.sin(phi)+y*Math.cos(phi);
+        phi = Math.toRadians(phi);
+        double cos= Math.cos(phi);
+        double sin= Math.sin(phi);
+        double newx = (x * cos) - (y * sin);
+        double newy =( x * sin) + (y * cos);
+        x=newx;
+        y=newy;
     }
 
     public double dot(Vector2 v) {

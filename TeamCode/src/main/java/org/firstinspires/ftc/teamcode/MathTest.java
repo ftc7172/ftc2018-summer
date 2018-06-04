@@ -54,11 +54,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
  */
 
 @TeleOp(name="MathTest", group="test")
-//@Disabled
+@Disabled
 public class MathTest extends LinearOpMode {
 
     // Declare OpMode members.
-    Vector2 vec1 = new Vector2(1,1);
+    Vector2 vec1 = new Vector2(0,1);
     Vector2 vec2= new Vector2( 1,0);
 
 
@@ -69,13 +69,14 @@ public class MathTest extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        vec1.rotateVector(90);
-        vec2.scalarMultiplication(5);
-        vec2.rotateVector(-90);
+        vec1.rotateVector(180);
+        vec2.rotateVector(180);
+
         telemetry.addData("vec1", vec1);
         telemetry.addData("vec2", vec2);
+        telemetry.addData("sin", Math.sin(Math.toRadians(90)));
         telemetry.update();
-        sleep(4000);
+        while(opModeIsActive());
 
 
 
