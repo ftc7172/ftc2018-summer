@@ -13,22 +13,22 @@ public class PID {
     double kD;
 
     private double lastPosition;
+    private PIDAccumulator acc;
 
-    private double acc;
-
-   // private ArrayList<Double> buffer;
-    public PID(PIDConstants x){
-        kP=x.kP;
-        kI=x.kI;
-        kD=x.kD;
+    public PID(PIDConstants x) {
+        kP = x.kP;
+        kI = x.kI;
+        kD = x.kD;
+        this.acc = x.acc;
         reset();
     }
 
 
-    public PID(double p, double I, double D) {
-        kP =p;
+    public PID(double p, double I, double D, PIDAccumulator acc) {
+        kP = p;
         kI = I;
         kD = D;
+        this.acc = acc;
         reset();
     }
 
@@ -36,6 +36,7 @@ public class PID {
         kP = p;
         kI = 0;
         kD = D;
+        acc = new NullAccumulator();
         reset();
     }
 
@@ -43,39 +44,25 @@ public class PID {
         kP = p;
         kI = 0;
         kD = 0;
+        acc = new NullAccumulator();
         reset();
     }
 
     public void reset() {
-        acc = 0;
+        acc.reset();
         lastPosition = 0;
-       // buffer= new ArrayList<Double>();
-        //for(short i = 0; i<BUFFER_SIZE; i++) buffer.add(0.0);
-    }
-
-
-    public double calcNoI(double pos, double setPoint){
-        double error = setPoint - pos;
-        double p = kP * error;
-
-
-
-        double d = (pos - lastPosition);
-        d *= kD;
-
-        lastPosition = pos;
-
-        return p + d;
 
     }
+
+
     public double calc(double pos, double setPoint) {
 
         double error = setPoint - pos;
         double p = kP * error;
 
 
-        acc=accumulatorBuffer(error);
-        double i = kI * acc;
+        acc.add(error);
+        double i = kI * acc.getValue();
         double d = (pos - lastPosition);
         d *= kD;
 
@@ -84,20 +71,6 @@ public class PID {
         return p + i + d;
 
     }
-    private double accumulatorBuffer(double x){
-       /* buffer.remove(0);
-        buffer.add(x);
-        double sum=0;
-        for(double i: buffer){
-            sum+=i;
-        }
-        return sum;*/
-
-       double sum = acc+x;
-       return sum*2/3.0;
-    }
-
-
 
 
 }
