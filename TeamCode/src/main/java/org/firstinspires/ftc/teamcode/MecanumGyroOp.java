@@ -57,6 +57,8 @@ public class MecanumGyroOp extends OpMode
     DcMotor rr;
     DcMotor lf;
     DcMotor lr;
+    DcMotor intakel;
+    DcMotor intaker;
     BNO055IMU imu;
     PID pid;
     Gyro gyro;
@@ -75,12 +77,18 @@ public class MecanumGyroOp extends OpMode
         rf= hardwareMap.get(DcMotor.class,"rf");
         rr= hardwareMap.get(DcMotor.class,"rr");
         lf= hardwareMap.get(DcMotor.class,"lf");
-        lf.setDirection(DcMotorSimple.Direction.REVERSE);
         lr= hardwareMap.get(DcMotor.class,"lr");
+        rf.setDirection(DcMotorSimple.Direction.FORWARD);
+        rr.setDirection(DcMotorSimple.Direction.FORWARD);
+        lf.setDirection(DcMotorSimple.Direction.REVERSE);
         lr.setDirection(DcMotorSimple.Direction.REVERSE);
         pid= new PID(-0.015);
 
-         }
+        intakel = hardwareMap.get(DcMotor.class, "intakel");
+        intaker = hardwareMap.get(DcMotor.class, "intaker");
+        intakel.setDirection(DcMotorSimple.Direction.FORWARD);
+        intaker.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -103,42 +111,44 @@ public class MecanumGyroOp extends OpMode
      */
     @Override
     public void loop() {
-        double heading=gyro.heading();
-        double forward=gamepad1.right_stick_y;
+        double heading = gyro.heading();
+        double forward = gamepad1.right_stick_y;
         double turn ;//= gamepad1.left_stick_x;
         preset();
-        target+=gamepad1.left_stick_x*-8;
+        target += gamepad1.left_stick_x*-8;
         turn= pid.calc(heading, target);
 
         telemetry.addData("gyro", heading);
 
         double strafe= gamepad1.right_stick_x;
-
-
         Vector2 vec = new Vector2(strafe, forward);
         vec.rotateVector(heading);
         drive(vec.getY()+gamepad1.left_stick_y,vec.getX(),turn);
 
+        double intakePower = (gamepad1.right_trigger - gamepad1.left_trigger) * 0.5;
+        intakel.setPower(intakePower);
+        intaker.setPower(intakePower);
     }
+
     public void drive(double forward, double strafe, double turn){
-        double rfP= forward+turn+strafe;
-        double rrP= forward+turn-strafe;
-        double lfP= forward-turn-strafe;
-        double lrP= forward-turn+strafe;
+        double rfP = forward+turn+strafe;
+        double rrP = forward+turn-strafe;
+        double lfP = forward-turn-strafe;
+        double lrP = forward-turn+strafe;
         rf.setPower(rfP);
         rr.setPower(rrP);
         lf.setPower(lfP);
         lr.setPower(lrP);
-
     }
+
     public void preset(){
-        if(gamepad1.dpad_up){
+        if (gamepad1.dpad_up) {
             target=360*gyro.turns;
         }
-        else if (gamepad1.dpad_right)target=-90+360*gyro.turns;
-        else if(gamepad1.dpad_left)target=90+360*gyro.turns;
-        else if(gamepad1.dpad_down)target=180+360*gyro.turns;
-        else if(gamepad1.a) {gyro.reset(); target=0;}
+        else if (gamepad1.dpad_right) target=-90+360*gyro.turns;
+        else if (gamepad1.dpad_left) target=90+360*gyro.turns;
+        else if (gamepad1.dpad_down) target=180+360*gyro.turns;
+        else if (gamepad1.a) { gyro.reset(); target=0; }
     }
 
     /*
